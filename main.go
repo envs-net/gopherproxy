@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/prologic/go-gopher"
@@ -17,6 +18,8 @@ var (
 	bind = flag.String("bind", ":80", "[int]:port to bind to")
 	host = flag.String("host", "localhost", "host to proxy to")
 	port = flag.Int("port", 70, "port to proxy to")
+
+	tpl *template.Template
 )
 
 type tplRow struct {
@@ -44,7 +47,9 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, d gopher.Dir
 		} else {
 			tr.Link = template.URL(
 				fmt.Sprintf(
-					"%s%s", string(byte(x.Type)), x.Selector,
+					"/%s%s",
+					string(byte(x.Type)),
+					url.QueryEscape(x.Selector),
 				),
 			)
 		}
@@ -55,13 +60,20 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, d gopher.Dir
 	return tpl.Execute(w, struct {
 		Title string
 		Lines []tplRow
-	}{"XXX", out})
+	}{*host, out})
 }
 
 func proxy(w http.ResponseWriter, req *http.Request) {
 	path := strings.TrimPrefix(req.URL.Path, "/")
 
-	res, err := gopher.Get(fmt.Sprintf("gopher://%s:%d/%s", *host, *port, path))
+	res, err := gopher.Get(
+		fmt.Sprintf(
+			"gopher://%s:%d/%s",
+			*host,
+			*port,
+			url.QueryEscape(path),
+		),
+	)
 	if err != nil {
 		io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
 		return
@@ -76,8 +88,6 @@ func proxy(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 }
-
-var tpl *template.Template
 
 func main() {
 	flag.Parse()

@@ -8,7 +8,19 @@ var tpltext = `<!doctype html>
 </head>
 <body>
 <pre>
-{{range .Lines}} {{if .Link}}({{.Type}}) <a href="{{.Link}}">{{.Text}}</a>{{else}}      {{.Text}}{{end}}
+{{range .Lines}} {{if .Link}}({{.Type}}) <a class="{{ .Type }}" href="{{.Link}}">{{.Text}}</a>{{else}}      {{.Text}}{{end}}
 {{end}}</pre>
+<script src="https://code.jquery.com/jquery-3.1.0.slim.min.js" integrity="sha256-cRpWjoSOw5KcyIOaZNo4i6fZ9tKPhYYb6i5T9RSVJG8=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+  $(".QRY").click(function (e) {
+    e.preventDefault();
+    var query = prompt("Please enter required input: ", "");
+    if (query != null) {
+      window.location = e.target.href + "%09" + query;
+    }
+  });
+});
+</script>
 </body>
 </html>`
