@@ -16,8 +16,6 @@ import (
 
 var (
 	bind = flag.String("bind", ":80", "[int]:port to bind to")
-	host = flag.String("host", "localhost", "host to proxy to")
-	port = flag.Int("port", 70, "port to proxy to")
 
 	tpl *template.Template
 )
@@ -28,7 +26,7 @@ type tplRow struct {
 	Text string
 }
 
-func renderDirectory(w http.ResponseWriter, tpl *template.Template, d gopher.Directory) error {
+func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport string, d gopher.Directory) error {
 	out := make([]tplRow, len(d))
 
 	for i, x := range d {
@@ -47,7 +45,8 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, d gopher.Dir
 		} else {
 			tr.Link = template.URL(
 				fmt.Sprintf(
-					"/%s%s",
+					"/%s/%s%s",
+					fmt.Sprintf("%s:%d", x.Host, x.Port),
 					string(byte(x.Type)),
 					url.QueryEscape(x.Selector),
 				),
@@ -60,17 +59,18 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, d gopher.Dir
 	return tpl.Execute(w, struct {
 		Title string
 		Lines []tplRow
-	}{*host, out})
+	}{hostport, out})
 }
 
 func proxy(w http.ResponseWriter, req *http.Request) {
-	path := strings.TrimPrefix(req.URL.Path, "/")
+	parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
+	hostport := parts[0]
+	path := strings.Join(parts[1:], "/")
 
 	res, err := gopher.Get(
 		fmt.Sprintf(
-			"gopher://%s:%d/%s",
-			*host,
-			*port,
+			"gopher://%s/%s",
+			hostport,
 			url.QueryEscape(path),
 		),
 	)
@@ -82,7 +82,7 @@ func proxy(w http.ResponseWriter, req *http.Request) {
 	if res.Body != nil {
 		io.Copy(w, res.Body)
 	} else {
-		if err := renderDirectory(w, tpl, res.Dir); err != nil {
+		if err := renderDirectory(w, tpl, hostport, res.Dir); err != nil {
 			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
 			return
 		}

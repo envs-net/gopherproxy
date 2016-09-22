@@ -18,12 +18,7 @@ gopherproxy is written in Go (#golang) using the
 $ gopherproxy
 ```
 
-By default gopherproxy will proxy requests to a locally running Gopher server
-on gopher://localhost:70/ -- To change where to proxy to:
-
-```#!bash
-$ gopherproxy -host gopher.floodgap.com
-```
+Then simply visit: http://localhost/gopher.floodgap.com
 
 ## License
 
