@@ -16,6 +16,7 @@ import (
 
 var (
 	bind = flag.String("bind", ":80", "[int]:port to bind to")
+	uri  = flag.String("uri", "127.0.0.1:70", "<host>:[port] to proxy to")
 
 	tpl *template.Template
 )
@@ -66,6 +67,11 @@ func proxy(w http.ResponseWriter, req *http.Request) {
 	parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
 	hostport := parts[0]
 	path := strings.Join(parts[1:], "/")
+
+	if len(hostport) == 0 {
+		http.Redirect(w, req, "/"+*uri, http.StatusFound)
+		return
+	}
 
 	res, err := gopher.Get(
 		fmt.Sprintf(
