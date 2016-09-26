@@ -50,12 +50,14 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 			} else {
 				hostport = fmt.Sprintf("%s:%d", x.Host, x.Port)
 			}
+			path := url.QueryEscape(x.Selector)
+			path = strings.Replace(path, "%2F", "/", -1)
 			tr.Link = template.URL(
 				fmt.Sprintf(
 					"/%s/%s%s",
 					hostport,
 					string(byte(x.Type)),
-					url.QueryEscape(x.Selector),
+					path,
 				),
 			)
 		}
