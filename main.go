@@ -73,11 +73,16 @@ func proxy(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	uri, err := url.QueryUnescape(path)
+	if err != nil {
+		io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
+		return
+	}
 	res, err := gopher.Get(
 		fmt.Sprintf(
 			"gopher://%s/%s",
 			hostport,
-			url.QueryEscape(path),
+			uri,
 		),
 	)
 	if err != nil {
