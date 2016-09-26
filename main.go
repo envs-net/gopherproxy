@@ -44,10 +44,16 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 		if strings.HasPrefix(x.Selector, "URL:") {
 			tr.Link = template.URL(x.Selector[4:])
 		} else {
+			var hostport string
+			if x.Port == 70 {
+				hostport = x.Host
+			} else {
+				hostport = fmt.Sprintf("%s:%d", x.Host, x.Port)
+			}
 			tr.Link = template.URL(
 				fmt.Sprintf(
 					"/%s/%s%s",
-					fmt.Sprintf("%s:%d", x.Host, x.Port),
+					hostport,
 					string(byte(x.Type)),
 					url.QueryEscape(x.Selector),
 				),
