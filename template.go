@@ -5,6 +5,11 @@ var tpltext = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <title>{{.Title}}</title>
+<style>
+* {
+  font-family: Monospace;
+}
+</style>
 </head>
 <body>
 <pre>
