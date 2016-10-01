@@ -1,4 +1,4 @@
-package main
+package gopherproxy
 
 var tpltext = `<!doctype html>
 <html>

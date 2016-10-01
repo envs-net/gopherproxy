@@ -1,0 +1,131 @@
+package gopherproxy
+
+import (
+	"fmt"
+	"html/template"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"strings"
+
+	"github.com/prologic/go-gopher"
+)
+
+type tplRow struct {
+	Link template.URL
+	Type string
+	Text string
+}
+
+// Handler is an aliased type for the standard HTTP handler functions
+type Handler func(w http.ResponseWriter, req *http.Request)
+
+func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport string, d gopher.Directory) error {
+	out := make([]tplRow, len(d))
+
+	for i, x := range d {
+		tr := tplRow{
+			Text: x.Description,
+			Type: x.Type.String(),
+		}
+
+		if x.Type == gopher.INFO {
+			out[i] = tr
+			continue
+		}
+
+		if strings.HasPrefix(x.Selector, "URL:") {
+			tr.Link = template.URL(x.Selector[4:])
+		} else {
+			var hostport string
+			if x.Port == 70 {
+				hostport = x.Host
+			} else {
+				hostport = fmt.Sprintf("%s:%d", x.Host, x.Port)
+			}
+			path := url.QueryEscape(x.Selector)
+			path = strings.Replace(path, "%2F", "/", -1)
+			tr.Link = template.URL(
+				fmt.Sprintf(
+					"/%s/%s%s",
+					hostport,
+					string(byte(x.Type)),
+					path,
+				),
+			)
+		}
+
+		out[i] = tr
+	}
+
+	return tpl.Execute(w, struct {
+		Title string
+		Lines []tplRow
+	}{hostport, out})
+}
+
+// MakeGopherProxyHandler returns a Handler that proxies requests
+// to the specified Gopher server as denoated by the first argument
+// to the request path and renders the content using the provided template.
+func MakeGopherProxyHandler(tpl *template.Template, uri string) Handler {
+	return func(w http.ResponseWriter, req *http.Request) {
+		parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
+		hostport := parts[0]
+		path := strings.Join(parts[1:], "/")
+
+		if len(hostport) == 0 {
+			http.Redirect(w, req, "/"+uri, http.StatusFound)
+			return
+		}
+
+		uri, err := url.QueryUnescape(path)
+		if err != nil {
+			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
+			return
+		}
+		res, err := gopher.Get(
+			fmt.Sprintf(
+				"gopher://%s/%s",
+				hostport,
+				uri,
+			),
+		)
+		if err != nil {
+			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
+			return
+		}
+
+		if res.Body != nil {
+			io.Copy(w, res.Body)
+		} else {
+			if err := renderDirectory(w, tpl, hostport, res.Dir); err != nil {
+				io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
+				return
+			}
+		}
+	}
+}
+
+// ListenAndServe creates a listening HTTP server bound to
+// the interface specified by bind and sets up a Gopher to HTTP
+// proxy proxying requests as requested and by default will prozy
+// to a Gopher server address specified by uri if no servers is
+// specified by the request.
+func ListenAndServe(bind, uri string) error {
+	var tpl *template.Template
+
+	tpldata, err := ioutil.ReadFile(".template")
+	if err == nil {
+		tpltext = string(tpldata)
+	}
+
+	tpl, err = template.New("gophermenu").Parse(tpltext)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.HandleFunc("/", MakeGopherProxyHandler(tpl, uri))
+	return http.ListenAndServe(bind, nil)
+}
