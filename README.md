@@ -16,9 +16,11 @@ gopherproxy is written in Go (#golang) using the
   $ go install github.com/prologic/gopherproxy/...
 
 ### Docker
-  
-  $ docker build -t gopherproxy .
-  $ docker run -p 80:80 gopherproxy -uri floodgap.com
+
+```#!bash
+$ docker build -t gopherproxy .
+$ docker run -p 80:80 gopherproxy -uri floodgap.com
+```
 
 ## Usage
 
