@@ -22,7 +22,7 @@ $(document).ready(function () {
     e.preventDefault();
     var query = prompt("Please enter required input: ", "");
     if (query != null) {
-      window.location = e.target.href + "%09" + query;
+      window.location = e.target.href + "?" + query;
     }
   });
 });

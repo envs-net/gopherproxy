@@ -45,7 +45,7 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 			} else {
 				hostport = fmt.Sprintf("%s:%d", x.Host, x.Port)
 			}
-			path := url.QueryEscape(x.Selector)
+			path := url.PathEscape(x.Selector)
 			path = strings.Replace(path, "%2F", "/", -1)
 			tr.Link = template.URL(
 				fmt.Sprintf(
@@ -73,11 +73,18 @@ func MakeGopherProxyHandler(tpl *template.Template, uri string) Handler {
 	return func(w http.ResponseWriter, req *http.Request) {
 		parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
 		hostport := parts[0]
-		path := strings.Join(parts[1:], "/")
 
 		if len(hostport) == 0 {
 			http.Redirect(w, req, "/"+uri, http.StatusFound)
 			return
+		}
+
+		var qs string
+
+		path := strings.Join(parts[1:], "/")
+
+		if req.URL.RawQuery != "" {
+			qs = fmt.Sprintf("?%s", url.QueryEscape(req.URL.RawQuery))
 		}
 
 		uri, err := url.QueryUnescape(path)
@@ -85,13 +92,16 @@ func MakeGopherProxyHandler(tpl *template.Template, uri string) Handler {
 			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
 			return
 		}
+
 		res, err := gopher.Get(
 			fmt.Sprintf(
-				"gopher://%s/%s",
+				"gopher://%s/%s%s",
 				hostport,
 				uri,
+				qs,
 			),
 		)
+
 		if err != nil {
 			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
 			return
