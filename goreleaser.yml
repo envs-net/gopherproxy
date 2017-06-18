@@ -1,0 +1,9 @@
+build:
+  main: cmd/gopherproxy/main.go
+  binary: gopherproxy
+  goos:
+    - windows
+    - darwin
+    - linux
+  goarch:
+    - amd64
