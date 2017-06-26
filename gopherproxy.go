@@ -23,9 +23,16 @@ type tplRow struct {
 type Handler func(w http.ResponseWriter, req *http.Request)
 
 func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport string, d gopher.Directory) error {
-	out := make([]tplRow, len(d))
+	var title string
 
-	for i, x := range d {
+	out := make([]tplRow, len(d.Items))
+
+	for i, x := range d.Items {
+		if x.Type == gopher.INFO && x.Selector == "TITLE" {
+			title = x.Description
+			continue
+		}
+
 		tr := tplRow{
 			Text: x.Description,
 			Type: x.Type.String(),
@@ -60,10 +67,14 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 		out[i] = tr
 	}
 
+	if title == "" {
+		title = hostport
+	}
+
 	return tpl.Execute(w, struct {
 		Title string
 		Lines []tplRow
-	}{hostport, out})
+	}{title, out})
 }
 
 // MakeGopherProxyHandler returns a Handler that proxies requests

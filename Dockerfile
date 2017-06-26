@@ -3,7 +3,7 @@ FROM golang:alpine
 EXPOSE 80/tcp
 
 ENTRYPOINT ["gopherproxy"]
-CMD []
+CMD ["-bind", "0.0.0.0:80", "-uri", "floodgap.com"]
 
 RUN \
     apk add --update git && \
