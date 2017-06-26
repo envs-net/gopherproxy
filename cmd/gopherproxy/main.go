@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	bind = flag.String("bind", ":80", "[int]:port to bind to")
-	uri  = flag.String("uri", "127.0.0.1:70", "<host>:[port] to proxy to")
+	bind = flag.String("bind", "0.0.0.0:80", "[int]:port to bind to")
+	uri  = flag.String("uri", "floodgap.com", "<host>:[port] to proxy to")
 )
 
 func main() {
