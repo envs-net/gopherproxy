@@ -11,6 +11,8 @@ by proxying standard Web HTTP requests to Gopher requests of the target server.
 gopherproxy is written in Go (#golang) using the
 [go-gopher](https://github.com/prologic/go-gopher) library.
 
+Demo: https://gopher.mills.io/
+
 ## Installation
   
   $ go install github.com/prologic/gopherproxy/...
