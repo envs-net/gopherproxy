@@ -19,6 +19,14 @@ Demo: https://gopher.mills.io/
 
 ### Docker
 
+Run directly from a prebuild image from the [Docker Hub](https://hub.docker.com):
+
+```#!bash
+$ docker run -p 8000:8000 prologic/gopherproxy
+```
+
+Or build your own custom image from a source checkout:
+
 ```#!bash
 $ docker build -t gopherproxy .
 $ docker run -p 80:80 gopherproxy -uri floodgap.com
