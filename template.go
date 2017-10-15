@@ -6,24 +6,6 @@ var tpltext = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{{.Title}}</title>
-<style>
-  body {
-	background: #FFFFFF;
-  }
-
-  section {
-	margin: auto;
-	width: 50%;
-    font-family:Courier;
-    color: #CCCCCC;
-    background: #000000;
-    border: 3px double #CCCCCC;
-    color: #FFFFFF;
-    border-radius: 1em;
-    padding: 1em;
-	overflow-x: auto;
-  }
-</style>
 </head>
 <body>
 <section>

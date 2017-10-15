@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	bind = flag.String("bind", "0.0.0.0:80", "[int]:port to bind to")
+	bind = flag.String("bind", "0.0.0.0:8000", "[int]:port to bind to")
 	uri  = flag.String("uri", "floodgap.com", "<host>:[port] to proxy to")
 )
 

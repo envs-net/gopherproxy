@@ -13,19 +13,16 @@ import (
 	"github.com/prologic/go-gopher"
 )
 
-type tplRow struct {
+type Item struct {
 	Link template.URL
 	Type string
 	Text string
 }
 
-// Handler is an aliased type for the standard HTTP handler functions
-type Handler func(w http.ResponseWriter, req *http.Request)
-
 func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport string, d gopher.Directory) error {
 	var title string
 
-	out := make([]tplRow, len(d.Items))
+	out := make([]Item, len(d.Items))
 
 	for i, x := range d.Items {
 		if x.Type == gopher.INFO && x.Selector == "TITLE" {
@@ -33,7 +30,7 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 			continue
 		}
 
-		tr := tplRow{
+		tr := Item{
 			Text: x.Description,
 			Type: x.Type.String(),
 		}
@@ -73,14 +70,14 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 
 	return tpl.Execute(w, struct {
 		Title string
-		Lines []tplRow
+		Lines []Item
 	}{title, out})
 }
 
-// MakeGopherProxyHandler returns a Handler that proxies requests
+// Handler returns a Handler that proxies requests
 // to the specified Gopher server as denoated by the first argument
 // to the request path and renders the content using the provided template.
-func MakeGopherProxyHandler(tpl *template.Template, uri string) Handler {
+func Handler(tpl *template.Template, uri string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
 		hostport := parts[0]
@@ -147,6 +144,6 @@ func ListenAndServe(bind, uri string) error {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", MakeGopherProxyHandler(tpl, uri))
+	http.HandleFunc("/", Handler(tpl, uri))
 	return http.ListenAndServe(bind, nil)
 }
