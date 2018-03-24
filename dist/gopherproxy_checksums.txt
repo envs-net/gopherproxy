@@ -1,3 +1,0 @@
-d2e5f00f3ae73146f3f49b20c7c1a50f9aa67102f1518e614c4b3741f207b06b  gopherproxy_0.0.1_darwin_amd64.tar.gz
-bacc7b6295cd0291e5b4c89c914e5fc799f6d0822a01cb9e19c55ddc119307e6  gopherproxy_0.0.1_windows_amd64.tar.gz
-c1eb2eb94a6fe450e63b883c781610643cbc3526e8459e8d9e46880fc812e861  gopherproxy_0.0.1_linux_amd64.tar.gz
