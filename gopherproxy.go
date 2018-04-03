@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/temoto/robotstxt"
+
 	"github.com/prologic/go-gopher"
 )
 
@@ -74,12 +76,21 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 	}{title, out})
 }
 
-// Handler returns a Handler that proxies requests
+// GopherHandler returns a Handler that proxies requests
 // to the specified Gopher server as denoated by the first argument
 // to the request path and renders the content using the provided template.
-func Handler(tpl *template.Template, uri string) http.HandlerFunc {
+// The optional robots parameters points to a robotstxt.RobotsData struct
+// to test user agents against a configurable robotst.txt file.
+func GopherHandler(tpl *template.Template, robotsdata *robotstxt.RobotsData, uri string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		parts := strings.Split(strings.TrimPrefix(req.URL.Path, "/"), "/")
+		agent := req.UserAgent()
+		path := strings.TrimPrefix(req.URL.Path, "/")
+
+		if robotsdata != nil && !robotsdata.TestAgent(path, agent) {
+			log.Printf("UserAgent %s ignored robots.txt", agent)
+		}
+
+		parts := strings.Split(path, "/")
 		hostport := parts[0]
 
 		if len(hostport) == 0 {
@@ -89,13 +100,11 @@ func Handler(tpl *template.Template, uri string) http.HandlerFunc {
 
 		var qs string
 
-		path := strings.Join(parts[1:], "/")
-
 		if req.URL.RawQuery != "" {
 			qs = fmt.Sprintf("?%s", url.QueryEscape(req.URL.RawQuery))
 		}
 
-		uri, err := url.QueryUnescape(path)
+		uri, err := url.QueryUnescape(strings.Join(parts[1:], "/"))
 		if err != nil {
 			io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))
 			return
@@ -126,13 +135,44 @@ func Handler(tpl *template.Template, uri string) http.HandlerFunc {
 	}
 }
 
+// RobotsTxtHandler returns the contents of the robots.txt file
+// if configured and valid.
+func RobotsTxtHandler(robotstxtdata []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if robotstxtdata == nil {
+			http.Error(w, "Not Found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write(robotstxtdata)
+	}
+}
+
 // ListenAndServe creates a listening HTTP server bound to
 // the interface specified by bind and sets up a Gopher to HTTP
 // proxy proxying requests as requested and by default will prozy
 // to a Gopher server address specified by uri if no servers is
-// specified by the request.
-func ListenAndServe(bind, uri string) error {
-	var tpl *template.Template
+// specified by the request. The robots argument is a pointer to
+// a robotstxt.RobotsData struct for testing user agents against
+// a configurable robots.txt file.
+func ListenAndServe(bind, robotsfile, uri string) error {
+	var (
+		tpl        *template.Template
+		robotsdata *robotstxt.RobotsData
+	)
+
+	robotstxtdata, err := ioutil.ReadFile(robotsfile)
+	if err != nil {
+		log.Printf("error reading robots.txt: %s", err)
+		robotstxtdata = nil
+	} else {
+		robotsdata, err = robotstxt.FromBytes(robotstxtdata)
+		if err != nil {
+			log.Printf("error reading robots.txt: %s", err)
+			robotstxtdata = nil
+		}
+	}
 
 	tpldata, err := ioutil.ReadFile(".template")
 	if err == nil {
@@ -144,6 +184,8 @@ func ListenAndServe(bind, uri string) error {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/", Handler(tpl, uri))
+	http.HandleFunc("/", GopherHandler(tpl, robotsdata, uri))
+	http.HandleFunc("/robots.txt", RobotsTxtHandler(robotstxtdata))
+
 	return http.ListenAndServe(bind, nil)
 }
