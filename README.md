@@ -40,6 +40,17 @@ $ gopherproxy
 
 Then simply visit: http://localhost/gopher.floodgap.com
 
+## Related
+
+Related projects:
+
+- [go-gopher](https://github.com/prologic/go-gopher)
+  go-gopher is the Gopher client and server library used by gopherproxy
+
+- [gopherclient](https://github.com/prologic/gopherclient)
+  gopherclient is a cross-platform QT/QML GUI Gopher Client
+  using the gopherproxy library as its backend.
+
 ## License
 
 MIT
