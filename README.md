@@ -1,9 +1,10 @@
 # Gopher (RFC 1436) Web Proxy
-[![Build Status](https://travis-ci.org/prologic/gopherproxy.svg)](https://travis-ci.org/prologic/gopherproxy)
-[![GoDoc](https://godoc.org/github.com/prologic/gopherproxy?status.svg)](https://godoc.org/github.com/prologic/gopherproxy)
-[![Wiki](https://img.shields.io/badge/docs-wiki-blue.svg)](https://github.com/prologic/gopherproxy/wiki)
-[![Go Report Card](https://goreportcard.com/badge/github.com/prologic/gopherproxy)](https://goreportcard.com/report/github.com/prologic/gopherproxy)
-[![Coverage](https://coveralls.io/repos/prologic/gopherproxy/badge.svg)](https://coveralls.io/r/prologic/gopherproxy)
+
+[![Build Status](https://cloud.drone.io/api/badges/prologic/gopherproxy/status.svg)](https://cloud.drone.io/prologic/gopherproxy)
+[![CodeCov](https://codecov.io/gh/prologic/gopherproxy/branch/master/graph/badge.svg)](https://codecov.io/gh/prologic/gopherproxy)
+[![Go Report Card](https://goreportcard.com/badge/prologic/gopherproxy)](https://goreportcard.com/report/prologic/gopherproxy)
+[![GoDoc](https://godoc.org/github.com/prologic/gopherproxy?status.svg)](https://godoc.org/github.com/prologic/gopherproxy) 
+[![Sourcegraph](https://sourcegraph.com/github.com/prologic/gopherproxy/-/badge.svg)](https://sourcegraph.com/github.com/prologic/gopherproxy?badge)
 
 gopherproxy is a Gopher (RFC 1436) Web Proxy that acts as a gateway into Gopherspace
 by proxying standard Web HTTP requests to Gopher requests of the target server.
