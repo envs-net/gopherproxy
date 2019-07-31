@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"tildegit.org/tildeverse/gopherproxy"
+	"github.com/envs-net/gopherproxy"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 	//       (opt -> env -> config -> default)
 	bind       = flag.String("bind", "0.0.0.0:8000", "[int]:port to bind to")
 	robotsfile = flag.String("robots-file", "robots.txt", "robots.txt file")
-	uri        = flag.String("uri", "tilde.team", "<host>:[port] to proxy to")
+	uri        = flag.String("uri", "envs.net", "<host>:[port] to proxy to")
 )
 
 func main() {
