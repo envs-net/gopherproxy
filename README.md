@@ -15,7 +15,8 @@ Demo: https://gopher.mills.io/
 
 ## Installation
   
-  $ go install github.com/prologic/gopherproxy/...
+  $ go get github.com/envs-net/gopherproxy/
+  $ go install github.com/envs-net/gopherproxy/
 
 ### Docker
 
