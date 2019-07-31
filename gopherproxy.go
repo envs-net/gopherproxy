@@ -1,6 +1,7 @@
 package gopherproxy
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
@@ -10,9 +11,8 @@ import (
 	"net/url"
 	"strings"
 
+	gopher "github.com/prologic/go-gopher"
 	"github.com/temoto/robotstxt"
-
-	"github.com/prologic/go-gopher"
 )
 
 type Item struct {
@@ -71,9 +71,10 @@ func renderDirectory(w http.ResponseWriter, tpl *template.Template, hostport str
 	}
 
 	return tpl.Execute(w, struct {
-		Title string
-		Lines []Item
-	}{title, out})
+		Title     string
+		Lines     []Item
+		Gophermap bool
+	}{title, out, true})
 }
 
 // GopherHandler returns a Handler that proxies requests
@@ -125,7 +126,28 @@ func GopherHandler(tpl *template.Template, robotsdata *robotstxt.RobotsData, uri
 		}
 
 		if res.Body != nil {
-			io.Copy(w, res.Body)
+			if strings.HasSuffix(uri, ".md") {
+				// handle markdown
+				tpl.Execute(w, struct {
+					Title     string
+					MdText    template.HTML
+					Gophermap bool
+					Pre       bool
+				}{uri, renderMd(res.Body), false, false})
+
+			} else if strings.HasSuffix(uri, ".txt") {
+				// handle .txt files
+				buf := new(bytes.Buffer)
+				buf.ReadFrom(res.Body)
+				tpl.Execute(w, struct {
+					Title     string
+					MdText    string
+					Gophermap bool
+					Pre       bool
+				}{uri, buf.String(), false, true})
+			} else {
+				io.Copy(w, res.Body)
+			}
 		} else {
 			if err := renderDirectory(w, tpl, hostport, res.Dir); err != nil {
 				io.WriteString(w, fmt.Sprintf("<b>Error:</b><pre>%s</pre>", err))

@@ -5,14 +5,25 @@ var tpltext = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://tilde.team/css/dracula.css">
 <title>{{.Title}}</title>
 </head>
+
 <body>
+<div class="container">
 <section>
-<pre>
+{{if .Gophermap}}<pre>
 {{range .Lines}} {{if .Link}}({{.Type}}) <a class="{{ .Type }}" href="{{.Link}}">{{.Text}}</a>{{else}}      {{.Text}}{{end}}
-{{end}}</pre>
+{{end}}
+</pre>
+{{else}}
+{{if .Pre}}<pre>{{end}}
+{{.MdText}}
+{{if .Pre}}</pre>{{end}}
+{{end}}
 </section>
+</div>
+
 <script type="text/javascript">
 var qry=document.getElementsByClassName('QRY')
 var i=qry.length
@@ -25,5 +36,7 @@ while (i--) {
   })
 }
 </script>
+
 </body>
-</html>`
+</html>
+`

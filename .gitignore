@@ -1,6 +1,4 @@
 *~
 dist
 *.bak
-coverage.txt
-
 gopherproxy
