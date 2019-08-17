@@ -14,29 +14,31 @@ gopherproxy is written in Go (#golang) using the
 Demo: https://gopher.mills.io/
 
 ## Installation
-  
-  $ go get github.com/envs-net/gopherproxy/
-  $ go install github.com/envs-net/gopherproxy/
+
+```bash
+go get github.com/envs-net/gopherproxy/
+go install github.com/envs-net/gopherproxy/
+```
 
 ### Docker
 
 Run directly from a prebuild image from the [Docker Hub](https://hub.docker.com):
 
-```#!bash
-$ docker run -p 8000:8000 prologic/gopherproxy
+```bash
+docker run -p 8000:8000 prologic/gopherproxy
 ```
 
 Or build your own custom image from a source checkout:
 
-```#!bash
-$ docker build -t gopherproxy .
-$ docker run -p 80:80 gopherproxy -uri floodgap.com
+```bash
+docker build -t gopherproxy .
+docker run -p 80:80 gopherproxy -uri floodgap.com
 ```
 
 ## Usage
 
-```#!bash
-$ gopherproxy
+```bash
+gopherproxy
 ```
 
 Then simply visit: http://localhost/gopher.floodgap.com
