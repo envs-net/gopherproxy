@@ -5,7 +5,7 @@ var tpltext = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="stylesheet" href="https://tilde.team/css/dracula.css">
+<link rel="stylesheet" href="https://envs.net/css/dracula.css">
 <title>{{.Title}}</title>
 </head>
 
