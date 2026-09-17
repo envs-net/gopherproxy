@@ -7,11 +7,23 @@ import (
 	"strings"
 
 	"github.com/gomarkdown/markdown"
+	markdownhtml "github.com/gomarkdown/markdown/html"
 )
 
-func renderMd(b io.Reader) template.HTML {
+func renderMd(reader io.Reader) template.HTML {
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(b)
-	md := string(markdown.ToHTML(buf.Bytes(), nil, nil))
-	return template.HTML(strings.Replace(md, "<img", "<img class=\"img-responsive\"", -1))
+	_, _ = buf.ReadFrom(reader)
+
+	renderer := markdownhtml.NewRenderer(markdownhtml.RendererOptions{
+		Flags: markdownhtml.SkipHTML |
+			markdownhtml.Safelink |
+			markdownhtml.NofollowLinks |
+			markdownhtml.NoreferrerLinks |
+			markdownhtml.NoopenerLinks |
+			markdownhtml.LazyLoadImages,
+	})
+
+	rendered := string(markdown.ToHTML(buf.Bytes(), nil, renderer))
+	rendered = strings.ReplaceAll(rendered, "<img", "<img class=\"img-responsive\"")
+	return template.HTML(rendered)
 }

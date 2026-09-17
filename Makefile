@@ -1,13 +1,21 @@
-.PHONY: dev build clean
+.PHONY: all dev build test vet fmt clean
 
-all: dev
+all: build
 
 dev: build
 	./gopherproxy -bind 127.0.0.1:8000
 
-build: clean
-	go get ./...
-	go build -o ./gopherproxy ./cmd/gopherproxy/main.go
+build:
+	go build -trimpath -o ./gopherproxy ./cmd/gopherproxy
+
+test:
+	go test ./...
+
+vet:
+	go vet ./...
+
+fmt:
+	gofmt -w *.go cmd/gopherproxy/*.go
 
 clean:
-	rm -rf gopherproxy
+	rm -f gopherproxy

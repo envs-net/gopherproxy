@@ -1,17 +1,15 @@
-FROM golang:alpine
+FROM golang:alpine AS build
 
-EXPOSE 80/tcp
+WORKDIR /src
+COPY . .
+RUN go build -trimpath -ldflags="-s -w" -o /out/gopherproxy ./cmd/gopherproxy
 
-ENTRYPOINT ["gopherproxy"]
+FROM alpine:latest
 
-RUN \
-    apk add --update git && \
-    rm -rf /var/cache/apk/*
+WORKDIR /app
+COPY --from=build /out/gopherproxy /usr/local/bin/gopherproxy
+COPY robots.txt /app/robots.txt
 
-RUN mkdir -p /go/src/github.com/prologic/gopherproxy
-WORKDIR /go/src/github.com/prologic/gopherproxy
-
-COPY . /go/src/github.com/prologic/gopherproxy
-
-RUN go get -v -d
-RUN go install -v github.com/prologic/gopherproxy/...
+USER 65532:65532
+EXPOSE 8000/tcp
+ENTRYPOINT ["/usr/local/bin/gopherproxy"]
